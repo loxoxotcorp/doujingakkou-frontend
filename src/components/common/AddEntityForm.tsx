@@ -24,13 +24,14 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
     legalName: '',
     description: '',
     industry: '',
+    logoUrl: '', // если есть поддержка логотипа
   });
 
   // Vacancy form state
   const [vacancy, setVacancy] = useState({
     title: '',
-    companyId: '1', // Default to first company
-    companyName: 'IT-Bilim', // Default company name
+    companyId: '1',
+    companyName: 'IT-Bilim',
     salary: {
       amount: 0,
       currency: 'сум',
@@ -52,66 +53,75 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
     status: 'active' as const,
   });
 
-  // Company mutation
   const companyMutation = useMutation({
     mutationFn: (companyData: typeof company) => {
       const payload = {
         name: companyData.name,
-        legal_name: companyData.legalName,
-        activity_field: companyData.industry,
-        description: companyData.description,
+        legal_name: companyData.legalName || undefined,
+        activity_field: companyData.industry || undefined,
+        description: companyData.description || undefined,
+        logo_url: companyData.logoUrl || undefined,
       };
       return createCompany(payload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
-      toast.success('Company created successfully');
+      toast.success('Компания успешно создана');
       onClose();
     },
     onError: (error: Error) => {
-      toast.error(`Failed to create company: ${error.message}`);
-    }
+      toast.error(`Ошибка при создании компании: ${error.message}`);
+    },
   });
 
-  // Vacancy mutation
   const vacancyMutation = useMutation({
     mutationFn: createVacancy,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vacancies'] });
-      toast.success('Vacancy created successfully');
+      toast.success('Вакансия успешно создана');
       onClose();
     },
     onError: (error: Error) => {
-      toast.error(`Failed to create vacancy: ${error.message}`);
-    }
+      toast.error(`Ошибка при создании вакансии: ${error.message}`);
+    },
   });
 
-  // Candidate mutation
   const candidateMutation = useMutation({
     mutationFn: createCandidate,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['candidates'] });
-      toast.success('Candidate created successfully');
+      toast.success('Кандидат успешно создан');
       onClose();
     },
     onError: (error: Error) => {
-      toast.error(`Failed to create candidate: ${error.message}`);
-    }
+      toast.error(`Ошибка при создании кандидата: ${error.message}`);
+    },
   });
 
-  // Handle form submission
   const handleSubmit = () => {
     if (activeTab === 'company') {
+      if (!company.name) {
+        toast.error('Название компании обязательно');
+        return;
+      }
       companyMutation.mutate(company);
     } else if (activeTab === 'vacancy') {
+      if (!vacancy.title) {
+        toast.error('Название вакансии обязательно');
+        return;
+      }
       vacancyMutation.mutate({
         ...vacancy,
-        skills: vacancy.skills.split(',').map(skill => skill.trim()),
+        skills: vacancy.skills.split(',').map((s) => s.trim()).filter(Boolean),
       });
     } else if (activeTab === 'candidate') {
+      if (!candidate.firstName || !candidate.lastName) {
+        toast.error('Имя и фамилия кандидата обязательны');
+        return;
+      }
       candidateMutation.mutate({
         ...candidate,
-        skills: candidate.skills.split(',').map(skill => skill.trim()),
+        skills: candidate.skills.split(',').map((s) => s.trim()).filter(Boolean),
       });
     }
   };
@@ -125,7 +135,6 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
           <TabsTrigger value="candidate">Кандидат</TabsTrigger>
         </TabsList>
 
-        {/* Company Form */}
         <TabsContent value="company">
           <div className="space-y-4">
             <div className="space-y-2">
@@ -135,6 +144,7 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
                 value={company.name}
                 onChange={(e) => setCompany({ ...company, name: e.target.value })}
                 placeholder="Введите название компании"
+                required
               />
             </div>
             <div className="space-y-2">
@@ -165,10 +175,19 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
                 rows={3}
               />
             </div>
+            {/* Если есть логотип */}
+            {/*<div className="space-y-2">
+              <Label htmlFor="logo-url">URL логотипа</Label>
+              <Input
+                id="logo-url"
+                value={company.logoUrl}
+                onChange={(e) => setCompany({ ...company, logoUrl: e.target.value })}
+                placeholder="Введите URL логотипа"
+              />
+            </div>*/}
           </div>
         </TabsContent>
 
-        {/* Vacancy Form */}
         <TabsContent value="vacancy">
           <div className="space-y-4">
             <div className="space-y-2">
@@ -178,6 +197,7 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
                 value={vacancy.title}
                 onChange={(e) => setVacancy({ ...vacancy, title: e.target.value })}
                 placeholder="Введите название вакансии"
+                required
               />
             </div>
             <div className="space-y-2">
@@ -196,10 +216,12 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
                   id="salary"
                   type="number"
                   value={vacancy.salary.amount}
-                  onChange={(e) => setVacancy({
-                    ...vacancy,
-                    salary: { ...vacancy.salary, amount: Number(e.target.value) },
-                  })}
+                  onChange={(e) =>
+                    setVacancy({
+                      ...vacancy,
+                      salary: { ...vacancy.salary, amount: Number(e.target.value) },
+                    })
+                  }
                   placeholder="Введите сумму"
                 />
               </div>
@@ -208,10 +230,12 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
                 <Input
                   id="currency"
                   value={vacancy.salary.currency}
-                  onChange={(e) => setVacancy({
-                    ...vacancy,
-                    salary: { ...vacancy.salary, currency: e.target.value },
-                  })}
+                  onChange={(e) =>
+                    setVacancy({
+                      ...vacancy,
+                      salary: { ...vacancy.salary, currency: e.target.value },
+                    })
+                  }
                   placeholder="Введите валюту"
                 />
               </div>
@@ -228,7 +252,6 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
           </div>
         </TabsContent>
 
-        {/* Candidate Form */}
         <TabsContent value="candidate">
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -239,6 +262,7 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
                   value={candidate.firstName}
                   onChange={(e) => setCandidate({ ...candidate, firstName: e.target.value })}
                   placeholder="Введите имя"
+                  required
                 />
               </div>
               <div className="space-y-2">
@@ -248,6 +272,7 @@ const AddEntityForm = ({ onClose }: AddEntityFormProps) => {
                   value={candidate.lastName}
                   onChange={(e) => setCandidate({ ...candidate, lastName: e.target.value })}
                   placeholder="Введите фамилию"
+                  required
                 />
               </div>
             </div>

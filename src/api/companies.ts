@@ -1,7 +1,7 @@
 import { Company, ApiResponse, PaginatedResponse, CompanyContact } from './types';
 
 function getToken(): string | null {
-  return localStorage.getItem('token');
+  return localStorage.getItem('auth_token');
 }
 
 const API_BASE = 'http://127.0.0.1:8000/api/companies';
@@ -48,7 +48,6 @@ export const getCompanies = async (
   if (hasActiveVacancies !== undefined) {
     params.append('has_active_vacancies', String(hasActiveVacancies));
   }
-
   if (sortBy) params.append('sort_by', sortBy);
   if (order) params.append('order', order);
 
@@ -64,11 +63,12 @@ export const getCompanies = async (
 
   const data = await res.json();
 
+  // Валидируем структуру, ожидаем объект с data и total
   return {
     success: true,
     data: {
-      data: data.map(transformCompany),
-      total: data.length,
+      data: data.data.map(transformCompany),
+      total: data.total,
       page,
       limit,
     },

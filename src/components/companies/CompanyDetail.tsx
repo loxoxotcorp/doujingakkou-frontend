@@ -12,7 +12,8 @@ import {
   updateCompanyRepresentative,
   deleteCompanyRepresentative,
 } from '@/api/companyRepresentatives';
-import { Company, CompanyContact } from '@/api/types';
+import { getVacancies } from '@/api/vacancies';
+import { Company, CompanyContact, Vacancy } from '@/api/types';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -51,6 +52,12 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
   const { data: reps, isLoading: isLoadingReps, error: repsError } = useQuery({
     queryKey: ['companyReps', companyId],
     queryFn: () => getCompanyRepresentatives(companyId),
+    enabled: !!companyId,
+  });
+
+  const { data: vacancies, isLoading: isLoadingVacancies, error: vacanciesError } = useQuery({
+    queryKey: ['vacancies', { companyId }],
+    queryFn: () => getVacancies(1, 100, { companyId }).then(res => res.data),
     enabled: !!companyId,
   });
 
@@ -213,7 +220,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
     }));
   };
 
-  if (isLoadingCompany || isLoadingReps) {
+  if (isLoadingCompany || isLoadingReps || isLoadingVacancies) {
     return <div className="p-4 text-center">Loading company details...</div>;
   }
 
@@ -221,7 +228,16 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
     return <div className="p-4 text-center text-red-500">Error loading company details</div>;
   }
 
+  if (repsError) {
+    return <div className="p-4 text-center text-red-500">Error loading representatives</div>;
+  }
+
+  if (vacanciesError) {
+    return <div className="p-4 text-center text-red-500">Error loading vacancies</div>;
+  }
+
   const companyContacts = reps ?? [];
+  const companyVacancies = vacancies ?? [];
 
   return (
     <div className="h-full scrollable-container p-4">

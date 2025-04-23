@@ -17,13 +17,17 @@ const CompaniesPage = () => {
   const [sortBy, setSortBy] = useState<'name' | 'created_at' | 'vacancy_count' | undefined>('created_at');
   const [order, setOrder] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(1);
+  const limit = 20;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['companies', { page, hasActiveVacancies, sortBy, order }],
-    queryFn: () => getCompanies(page, 10, hasActiveVacancies, sortBy, order),
+    queryFn: () => getCompanies(page, limit, hasActiveVacancies, sortBy, order),
+    keepPreviousData: true,
   });
 
   const companies = data?.data.data || [];
+  const total = data?.data.total || 0;
+  const totalPages = Math.ceil(total / limit);
 
   const filteredCompanies = companies.filter(company =>
     company.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -32,6 +36,14 @@ const CompaniesPage = () => {
   useEffect(() => {
     setSelectedCompany(null);
   }, [page, hasActiveVacancies, sortBy, order]);
+
+  const handlePrevPage = () => {
+    setPage((old) => Math.max(old - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setPage((old) => (old < totalPages ? old + 1 : old));
+  };
 
   return (
     <Layout>
@@ -87,9 +99,9 @@ const CompaniesPage = () => {
       </div>
 
       {/* Main content layout */}
-      <div className="grid grid-cols-3 gap-4 h-[calc(100vh-200px)] overflow-hidden">
+      <div className="grid grid-cols-3 gap-4 h-[calc(100vh-250px)] overflow-hidden">
         {/* Company list panel */}
-        <div className="col-span-1 bg-recruitflow-beigeLight rounded-lg shadow-sm h-full overflow-y-auto">
+        <div className="col-span-1 bg-recruitflow-beigeLight rounded-lg shadow-sm h-full overflow-y-auto flex flex-col">
           <CompanyList
             onSelectCompany={setSelectedCompany}
             selectedCompanyId={selectedCompany?.id}
@@ -97,6 +109,16 @@ const CompaniesPage = () => {
             isLoading={isLoading}
             error={error}
           />
+          {/* Pagination controls */}
+          <div className="p-3 flex justify-between items-center border-t border-recruitflow-beigeDark">
+            <Button onClick={handlePrevPage} disabled={page === 1}>
+              Предыдущая
+            </Button>
+            <span>Страница {page} из {totalPages}</span>
+            <Button onClick={handleNextPage} disabled={page === totalPages}>
+              Следующая
+            </Button>
+          </div>
         </div>
 
         {/* Company detail */}

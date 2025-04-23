@@ -8,15 +8,19 @@ function getToken(): string | null {
 
 // Реальный вызов логина к бекенду
 export const login = async (
-  email: string,
+  username: string,
   password: string
 ): Promise<ApiResponse<AuthResponse>> => {
+  const body = new URLSearchParams();
+  body.append('username', username);
+  body.append('password', password);
+
   const res = await fetch(`${API_BASE}/login`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
-    body: JSON.stringify({ email, password }),
+    body: body.toString(),
   });
 
   if (!res.ok) {
@@ -26,9 +30,9 @@ export const login = async (
 
   const data = await res.json();
 
-  // Предполагается, что сервер возвращает { token: string, user: User }
-  localStorage.setItem('auth_token', data.token);
-  localStorage.setItem('user', JSON.stringify(data.user));
+  // Токен в ответе называется access_token согласно backend
+  localStorage.setItem('auth_token', data.access_token || data.token);
+  localStorage.setItem('user', JSON.stringify(data.user || { username }));
 
   return {
     success: true,
