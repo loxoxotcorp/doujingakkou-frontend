@@ -1,0 +1,84 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 36 33% 90%;
+    --foreground: 30 25% 20%;
+    
+    --card: 36 30% 92%;
+    --card-foreground: 30 25% 20%;
+    
+    --popover: 36 30% 92%;
+    --popover-foreground: 30 25% 20%;
+    
+    --primary: 30 25% 20%;
+    --primary-foreground: 36 30% 92%;
+    
+    --secondary: 36 20% 70%;
+    --secondary-foreground: 30 25% 20%;
+    
+    --muted: 36 20% 85%;
+    --muted-foreground: 30 15% 40%;
+    
+    --accent: 36 20% 85%;
+    --accent-foreground: 30 25% 20%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 36 30% 92%;
+    
+    --border: 30 20% 75%;
+    --input: 30 20% 90%;
+    --ring: 35 40% 60%;
+    
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-recruitflow-beige text-foreground;
+  }
+}
+
+@layer components {
+  .scrollable-container {
+    @apply overflow-y-auto overflow-x-hidden;
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.recruitflow.brownLight') theme('colors.recruitflow.beigeDark');
+  }
+  
+  .scrollable-container::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .scrollable-container::-webkit-scrollbar-track {
+    @apply bg-recruitflow-beigeDark rounded-full;
+  }
+  
+  .scrollable-container::-webkit-scrollbar-thumb {
+    @apply bg-recruitflow-brownLight rounded-full;
+  }
+  
+  .skill-tag {
+    @apply inline-block px-2 py-0.5 text-xs font-medium rounded-md bg-recruitflow-beigeDark text-recruitflow-brownDark m-0.5;
+  }
+  
+  .language-tag {
+    @apply inline-block px-2 py-0.5 text-xs font-medium rounded-md bg-recruitflow-beigeLight text-recruitflow-brownDark m-0.5 border border-recruitflow-beigeDark;
+  }
+  
+  .card-container {
+    @apply bg-recruitflow-beigeLight rounded-md p-3 border border-recruitflow-beigeDark shadow-sm;
+  }
+  
+  .input-field {
+    @apply rounded-md border border-recruitflow-beigeDark bg-white px-3 py-2 text-sm shadow-sm;
+  }
+}
