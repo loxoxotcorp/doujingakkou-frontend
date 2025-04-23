@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -44,9 +44,14 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
   const [editContactValues, setEditContactValues] = useState<Partial<CompanyContact>>({});
   const [newContact, setNewContact] = useState<Partial<CompanyContact>>(emptyContact);
 
+  useEffect(() => {
+    console.log('CompanyDetail mounted/updated with companyId:', companyId);
+  }, [companyId]);
+
   const { data: company, isLoading: isLoadingCompany, error: companyError } = useQuery({
     queryKey: ['company', companyId],
     queryFn: () => getCompanyById(companyId).then(res => res.data),
+    enabled: !!companyId,
   });
 
   const { data: reps, isLoading: isLoadingReps, error: repsError } = useQuery({
@@ -123,7 +128,6 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
     },
   });
 
-  // Company info handlers
   const handleEdit = (field: string) => {
     setIsEditing(prev => ({ ...prev, [field]: true }));
     setEditedValues(prev => ({ ...prev, [field]: company?.[field as keyof Company] }));
@@ -149,7 +153,6 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
     setEditedValues(prev => ({ ...prev, [field]: value }));
   };
 
-  // Contact handlers
   const handleEditContactToggle = (contact: CompanyContact) => {
     setEditingContact(prev => ({ ...prev, [contact.id]: !prev[contact.id] }));
     setEditContactValues({
@@ -166,6 +169,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
   const handleEditContactPhoneChange = (value: string) => {
     setEditContactValues(prev => ({ ...prev, phones: [value] }));
   };
+
   const handleEditContactEmailChange = (value: string) => {
     setEditContactValues(prev => ({ ...prev, emails: [value] }));
   };
@@ -220,6 +224,8 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
     }));
   };
 
+  console.log("🚀 RENDER Company:", company);
+  console.log("📇 Contacts:", company.contacts);
   if (isLoadingCompany || isLoadingReps || isLoadingVacancies) {
     return <div className="p-4 text-center">Loading company details...</div>;
   }
@@ -239,6 +245,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
   const companyContacts = reps ?? [];
   const companyVacancies = vacancies ?? [];
 
+
   return (
     <div className="h-full scrollable-container p-4">
       <div className="card-container mb-4">
@@ -252,19 +259,19 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
               <div className="mt-1 flex space-x-2">
                 <Input
                   value={editedValues.name || ''}
-                  onChange={(e) => handleChange('name', e.target.value)}
+                  onChange={e => handleChange('name', e.target.value)}
                   className="input-field"
                 />
-                <Button size="sm" onClick={() => handleSave('name')}>Save</Button>
-                <Button size="sm" variant="outline" onClick={() => handleCancel('name')}>Cancel</Button>
+                <Button size="sm" onClick={() => handleSave('name')}>
+                  Save
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleCancel('name')}>
+                  Cancel
+                </Button>
               </div>
             ) : (
               <div className="mt-1 flex justify-between items-center">
-                <Input
-                  value={company.name}
-                  readOnly
-                  className="input-field bg-gray-100 cursor-default"
-                />
+                <Input value={company.name} readOnly className="input-field bg-gray-100 cursor-default" />
                 <Button variant="ghost" size="sm" onClick={() => handleEdit('name')}>
                   Edit
                 </Button>
@@ -279,11 +286,15 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
               <div className="mt-1 flex space-x-2">
                 <Input
                   value={editedValues.legalName || ''}
-                  onChange={(e) => handleChange('legalName', e.target.value)}
+                  onChange={e => handleChange('legalName', e.target.value)}
                   className="input-field"
                 />
-                <Button size="sm" onClick={() => handleSave('legalName')}>Save</Button>
-                <Button size="sm" variant="outline" onClick={() => handleCancel('legalName')}>Cancel</Button>
+                <Button size="sm" onClick={() => handleSave('legalName')}>
+                  Save
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleCancel('legalName')}>
+                  Cancel
+                </Button>
               </div>
             ) : (
               <div className="mt-1 flex justify-between items-center">
@@ -306,11 +317,15 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
               <div className="mt-1 flex space-x-2">
                 <Input
                   value={editedValues.industry || ''}
-                  onChange={(e) => handleChange('industry', e.target.value)}
+                  onChange={e => handleChange('industry', e.target.value)}
                   className="input-field"
                 />
-                <Button size="sm" onClick={() => handleSave('industry')}>Save</Button>
-                <Button size="sm" variant="outline" onClick={() => handleCancel('industry')}>Cancel</Button>
+                <Button size="sm" onClick={() => handleSave('industry')}>
+                  Save
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => handleCancel('industry')}>
+                  Cancel
+                </Button>
               </div>
             ) : (
               <div className="mt-1 flex justify-between items-center">
@@ -335,13 +350,17 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
           <div className="space-y-2">
             <Textarea
               value={editedValues.description || ''}
-              onChange={(e) => handleChange('description', e.target.value)}
+              onChange={e => handleChange('description', e.target.value)}
               className="input-field min-h-[100px]"
               placeholder="Введите описание компании..."
             />
             <div className="flex justify-end space-x-2">
-              <Button size="sm" onClick={() => handleSave('description')}>Save</Button>
-              <Button size="sm" variant="outline" onClick={() => handleCancel('description')}>Cancel</Button>
+              <Button size="sm" onClick={() => handleSave('description')}>
+                Save
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => handleCancel('description')}>
+                Cancel
+              </Button>
             </div>
           </div>
         ) : (
@@ -363,9 +382,14 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
 
         <div className="space-y-6">
           {companyContacts.map((contact, index) => (
-            <div key={contact.id} className="border-b border-dashed border-recruitflow-beigeDark pb-4 last:border-b-0 last:pb-0">
+            <div
+              key={contact.id}
+              className="border-b border-dashed border-recruitflow-beigeDark pb-4 last:border-b-0 last:pb-0"
+            >
               <div className="flex justify-between items-center mb-2">
-                <h3 className="font-medium">{index + 1}. {contact.firstName} {contact.middleName || ''} {contact.lastName}</h3>
+                <h3 className="font-medium">
+                  {index + 1}. {contact.firstName} {contact.middleName || ''} {contact.lastName}
+                </h3>
                 <div className="flex gap-2">
                   <Button
                     variant="ghost"
@@ -373,7 +397,11 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                     className="text-blue-500 hover:text-blue-700"
                     onClick={() => handleEditContactToggle(contact)}
                   >
-                    {editingContact[contact.id] ? <X className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
+                    {editingContact[contact.id] ? (
+                      <X className="h-4 w-4" />
+                    ) : (
+                      <Pencil className="h-4 w-4" />
+                    )}
                   </Button>
                   <Button
                     variant="ghost"
@@ -392,7 +420,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                       <Label>Фамилия</Label>
                       <Input
                         value={editContactValues.lastName || ''}
-                        onChange={e => handleEditContactChange('lastName', e.target.value)}
+                        onChange={(e) => handleEditContactChange('lastName', e.target.value)}
                         className="input-field"
                         placeholder="Фамилия"
                       />
@@ -401,7 +429,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                       <Label>Имя</Label>
                       <Input
                         value={editContactValues.firstName || ''}
-                        onChange={e => handleEditContactChange('firstName', e.target.value)}
+                        onChange={(e) => handleEditContactChange('firstName', e.target.value)}
                         className="input-field"
                         placeholder="Имя"
                       />
@@ -411,7 +439,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                     <Label>Отчество</Label>
                     <Input
                       value={editContactValues.middleName || ''}
-                      onChange={e => handleEditContactChange('middleName', e.target.value)}
+                      onChange={(e) => handleEditContactChange('middleName', e.target.value)}
                       className="input-field"
                       placeholder="Отчество"
                     />
@@ -420,7 +448,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                     <Label className="w-24">Телефон</Label>
                     <Input
                       value={editContactValues.phones?.[0] ?? ''}
-                      onChange={e => handleEditContactPhoneChange(e.target.value)}
+                      onChange={(e) => handleEditContactPhoneChange(e.target.value)}
                       className="input-field"
                       placeholder="+998 99 999 99 99"
                     />
@@ -429,25 +457,33 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                     <Label className="w-24">Почта</Label>
                     <Input
                       value={editContactValues.emails?.[0] ?? ''}
-                      onChange={e => handleEditContactEmailChange(e.target.value)}
+                      onChange={(e) => handleEditContactEmailChange(e.target.value)}
                       className="input-field"
                       placeholder="email@example.com"
                     />
                   </div>
                   <div className="flex justify-end gap-2">
-                    <Button size="sm" onClick={() => handleEditContactSave(contact)}>Сохранить</Button>
-                    <Button size="sm" variant="outline" onClick={() => handleEditContactCancel(contact.id)}>Отмена</Button>
+                    <Button size="sm" onClick={() => handleEditContactSave(contact)}>
+                      Сохранить
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEditContactCancel(contact.id)}
+                    >
+                      Отмена
+                    </Button>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-2 ml-2">
                   <div>
                     <span className="font-medium">Телефон: </span>
-                    {(contact.phones?.[0]) || <span className="text-gray-400">Нет</span>}
+                    {contact.phones?.[0] || <span className="text-gray-400">Нет</span>}
                   </div>
                   <div>
                     <span className="font-medium">Почта: </span>
-                    {(contact.emails?.[0]) || <span className="text-gray-400">Нет</span>}
+                    {contact.emails?.[0] || <span className="text-gray-400">Нет</span>}
                   </div>
                 </div>
               )}
@@ -463,7 +499,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                   <Label>Фамилия</Label>
                   <Input
                     value={newContact.lastName || ''}
-                    onChange={e => setNewContact({ ...newContact, lastName: e.target.value })}
+                    onChange={(e) => setNewContact({ ...newContact, lastName: e.target.value })}
                     className="input-field"
                     placeholder="Фамилия"
                   />
@@ -472,7 +508,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                   <Label>Имя</Label>
                   <Input
                     value={newContact.firstName || ''}
-                    onChange={e => setNewContact({ ...newContact, firstName: e.target.value })}
+                    onChange={(e) => setNewContact({ ...newContact, firstName: e.target.value })}
                     className="input-field"
                     placeholder="Имя"
                   />
@@ -482,7 +518,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                 <Label>Отчество</Label>
                 <Input
                   value={newContact.middleName || ''}
-                  onChange={e => setNewContact({ ...newContact, middleName: e.target.value })}
+                  onChange={(e) => setNewContact({ ...newContact, middleName: e.target.value })}
                   className="input-field"
                   placeholder="Отчество"
                 />
@@ -491,7 +527,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                 <Label className="w-24">Телефон</Label>
                 <Input
                   value={newContact.phones?.[0] || ''}
-                  onChange={e => setNewContact({ ...newContact, phones: [e.target.value] })}
+                  onChange={(e) => setNewContact({ ...newContact, phones: [e.target.value] })}
                   className="input-field"
                   placeholder="+998 99 999 99 99"
                 />
@@ -500,7 +536,7 @@ const CompanyDetail = ({ companyId }: CompanyDetailProps) => {
                 <Label className="w-24">Почта</Label>
                 <Input
                   value={newContact.emails?.[0] || ''}
-                  onChange={e => setNewContact({ ...newContact, emails: [e.target.value] })}
+                  onChange={(e) => setNewContact({ ...newContact, emails: [e.target.value] })}
                   className="input-field"
                   placeholder="email@example.com"
                 />

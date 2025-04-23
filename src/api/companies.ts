@@ -6,28 +6,26 @@ function getToken(): string | null {
 
 const API_BASE = 'http://127.0.0.1:8000/api/companies';
 
-function transformCompany(apiCompany: any): Company {
+export function transformCompany(apiCompany: any): Company {
   return {
     id: String(apiCompany.id),
     name: apiCompany.name,
-    legalName: apiCompany.legal_name,
-    description: apiCompany.description,
-    industry: apiCompany.activity_field,
-    totalVacancies: (apiCompany.vacancies ?? []).length,
-    activeVacancies: (apiCompany.vacancies ?? []).filter((v: any) => v.is_active).length,
-    logoUrl: apiCompany.logo_url,
+    legalName: apiCompany.legal_name ?? '',
+    description: apiCompany.description ?? '',
+    industry: apiCompany.activity_field ?? '',
+    logoUrl: apiCompany.logo_url ?? '',
     contacts: (apiCompany.representatives ?? []).map((rep: any): CompanyContact => ({
       id: String(rep.id),
-      firstName: rep.first_name,
-      lastName: rep.last_name,
-      middleName: rep.middle_name,
-      position: rep.position,
+      firstName: rep.first_name ?? '',
+      lastName: rep.last_name ?? '',
+      middleName: rep.middle_name ?? '',
+      position: rep.position ?? '',
       phones: rep.phones ?? [],
       emails: rep.emails ?? [],
     })),
-    createdBy: apiCompany.created_by || '',
+    createdBy: apiCompany.created_by ?? '',
     createdAt: apiCompany.created_at,
-    updatedBy: apiCompany.updated_by || '',
+    updatedBy: apiCompany.updated_by ?? '',
     updatedAt: apiCompany.updated_at,
   };
 }
@@ -63,7 +61,6 @@ export const getCompanies = async (
 
   const data = await res.json();
 
-  // Валидируем структуру, ожидаем объект с data и total
   return {
     success: true,
     data: {
@@ -78,17 +75,26 @@ export const getCompanies = async (
 export const getCompanyById = async (
   id: string
 ): Promise<ApiResponse<Company>> => {
-  const url = `${API_BASE}/${id}`;
+  console.log("Fetching company by ID:", id);
+  const encodedId = encodeURIComponent(id);
+  const url = `${API_BASE}/${encodedId}`;
   const res = await fetch(url, {
     headers: {
       Authorization: getToken() ? `Bearer ${getToken()}` : '',
     },
   });
-  if (!res.ok) throw new Error(await res.text());
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(`Error ${res.status}: ${errorText}`);
+  }
   const apiCompany = await res.json();
+  console.log("Raw apiCompany from backend:", apiCompany);
+  console.log('getCompanyById response:', res.data);
+  const transformed = transformCompany(apiCompany);
+  console.log("Transformed company:", transformed);
   return {
     success: true,
-    data: transformCompany(apiCompany),
+    data: transformed,
   };
 };
 
@@ -97,10 +103,10 @@ export const createCompany = async (
 ): Promise<ApiResponse<Company>> => {
   const payload = {
     name: companyData.name,
-    legal_name: companyData.legalName,
-    activity_field: companyData.industry,
-    description: companyData.description,
-    logo_url: companyData.logoUrl,
+    legal_name: companyData.legalName || null,
+    activity_field: companyData.industry || null,
+    description: companyData.description || null,
+    logo_url: companyData.logoUrl || null,
   };
   const res = await fetch(API_BASE, {
     method: 'POST',
@@ -124,10 +130,10 @@ export const updateCompany = async (
 ): Promise<ApiResponse<Company>> => {
   const payload = {
     name: companyData.name,
-    legal_name: companyData.legalName,
-    activity_field: companyData.industry,
-    description: companyData.description,
-    logo_url: companyData.logoUrl,
+    legal_name: companyData.legalName || null,
+    activity_field: companyData.industry || null,
+    description: companyData.description || null,
+    logo_url: companyData.logoUrl || null,
   };
   const res = await fetch(`${API_BASE}/${id}`, {
     method: 'PUT',

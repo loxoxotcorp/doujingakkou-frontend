@@ -33,9 +33,14 @@ const CompaniesPage = () => {
     company.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+//   useEffect(() => {
+//     setSelectedCompany(null);
+//   }, [page, hasActiveVacancies, sortBy, order]);
   useEffect(() => {
-    setSelectedCompany(null);
-  }, [page, hasActiveVacancies, sortBy, order]);
+    if (!selectedCompany && filteredCompanies.length > 0) {
+      setSelectedCompany(filteredCompanies[0]);
+    }
+  }, [filteredCompanies, selectedCompany]);
 
   const handlePrevPage = () => {
     setPage((old) => Math.max(old - 1, 1));
@@ -44,7 +49,7 @@ const CompaniesPage = () => {
   const handleNextPage = () => {
     setPage((old) => (old < totalPages ? old + 1 : old));
   };
-
+//   console.log({ isLoading, error, companies, filteredCompanies, selectedCompany });
   return (
     <Layout>
       {/* Top filters */}

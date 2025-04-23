@@ -42,7 +42,7 @@ export interface Vacancy {
   companyId: string;
   companyName: string;
   salary?: {
-    amount: number;
+    amount: string;
     currency: string;
   };
   skills: string[];
