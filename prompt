@@ -1,0 +1,348 @@
+Наша задача написать фронтенд на react. вот наш прошлый промпт:
+
+
+You are a senior React/TypeScript frontend engineer. Your mission is to generate a complete React project (React 18+, TypeScript, Tailwind CSS + shadcn/ui) that faithfully recreates and perfects the RecruitFlow UI. You must implement every feature below — no partials. If you miss anything, we’ll finish it ourselves.
+
+---
+
+### 1. Layout & Scrolling
+- **Fixed Header**: top navbar and filters bar always pinned at the top of the viewport.
+- **Horizontal Centering**: all main content (Kanban boards, tables, profile panels) must be centered horizontally within the page wrapper.
+- **Independent Scroll Containers**:
+  - **Companies Page**:
+    • Left “Company List” scrolls vertically.
+    • Center “Company Info” panel scrolls vertically.
+    • Right “Company Vacancies” panel scrolls vertically.
+  - **Vacancies & Candidates Pages**:
+    • Left “Company List” filter scrolls vertically.
+    • Each Kanban column scrolls vertically (cards container scroll only).
+    • Whole Kanban grid scrolls horizontally if columns overflow.
+
+---
+
+### 2. Authentication
+- **Login Page**: username + password form, JWT storage, route protection, redirect unauthenticated users.
+- No registration flow required.
+
+---
+
+### 3. Global “Add” Button & Modal
+- **Floating “+”** button at bottom right on every authenticated page.
+- Opens a **modal** letting user choose entity type (Company, Vacancy, Candidate, Skill, Language).
+- After choosing, display minimal create form. Creation results in new item appearing in lists/boards.
+
+---
+
+### 4. Candidate Base & Linking
+- **Infinite Scroll**: replace table pagination with infinite-loading table using React Query.
+- **Detail View**: clicking a candidate row opens a **drawer** with full info.
+- In drawer, **“Link to Vacancy”** button opens searchable dropdown of active vacancies; assigning moves the candidate into the Candidates Kanban.
+
+---
+
+### 5. Kanban Card Details, Chat & Reminders
+- All Kanban cards are **clickable**.
+- On click, open a **right‑side drawer** showing full entity details.
+- In the drawer, include a **comments/chat** section:
+  - List comments with author and timestamp.
+  - Form to add new comment.
+  - “Remind me” icon on each comment opens a date/time picker; upon setting, creates an in‑app notification.
+
+---
+
+### 6. UI Polish & Bug Fixes
+1. **Nav Buttons**: ensure top‑nav buttons (Companies, Vacancies, Candidates, Candidate Base, bell, user icon) are fully visible, not clipped.
+2. **Consistent Theming**: align new pages/modals with RecruitFlow’s color palette, typography, spacing.
+3. **Center Everything**: horizontally center all boards, tables, and panels within the viewport wrapper.
+4. **Performance & Animations**: use Framer Motion for card hover, modal/drawer transitions, and keep animations smooth. Lazy‑load routes and components.
+
+---
+
+### 7. Tech & Developer Experience
+- **React 18+**, **TypeScript**, **Tailwind CSS**, **shadcn/ui**
+- **React Router v6**
+- **React Query** for data layer
+- **@dnd-kit** or **react-beautiful-dnd** for drag‑and‑drop
+- **Framer Motion** for animations
+- **Jest + React Testing Library**: include tests for Login, Add‑modal, and one Kanban DnD interaction
+- **ESLint + Prettier**, **README.md** with setup and usage instructions
+
+
+Нужно добавить в него следующие моменты:
+
+1. Раздел "Кандидаты" это applications
+2. Использовать axios
+3. Прописать эндпоинты с нашего бекенда. Вот наши эндпоинты:
+
+applications:
+GET:
+127.0.0.1:8000/api/applications
+127.0.0.1:8000/api/applications/{application_id}
+POST:
+127.0.0.1:8000/api/applications/
+PUT:
+127.0.0.1:8000/api/applications/{application_id}
+DELETE:
+127.0.0.1:8000/api/applications/{application_id}
+
+auth:
+GET:
+127.0.0.1:8000/api/auth/me
+POST:
+127.0.0.1:8000/api/auth/login
+127.0.0.1:8000/api/auth/logout
+
+candidates:
+GET:
+127.0.0.1:8000/api/candidates
+127.0.0.1:8000/api/candidates/{candidate_id}
+POST:
+127.0.0.1:8000/api/candidates/
+PUT:
+127.0.0.1:8000/api/candidates/{candidate_id}
+DELETE:
+127.0.0.1:8000/api/candidates/{candidate_id}
+
+candidate_languages:
+GET:
+127.0.0.1:8000/api/candidates/{candidate_id}/languages
+POST:
+127.0.0.1:8000/api/candidates/{candidate_id}/languages/
+DELETE:
+127.0.0.1:8000/api/candidates/{candidate_id}/languages/{assoc_language_id}
+
+candidate_skills:
+GET:
+127.0.0.1:8000/api/candidates/{candidate_id}/skills
+POST:
+127.0.0.1:8000/api/candidates/{candidate_id}/skills/
+DELETE:
+127.0.0.1:8000/api/candidates/{candidate_id}/skills/{assoc_skill_id}
+
+companies:
+GET:
+127.0.0.1:8000/api/companies
+127.0.0.1:8000/api/companies/{company_id}
+POST:
+127.0.0.1:8000/api/companies/
+PUT:
+127.0.0.1:8000/api/companies/{company_id}
+DELETE:
+127.0.0.1:8000/api/companies/{company_id}
+
+representatives:
+GET:
+127.0.0.1:8000/api/companies/{company_id}/representatives
+127.0.0.1:8000/api/companies/{company_id}/representatives/{rep_id}
+POST:
+127.0.0.1:8000/api/companies/{company_id}/representatives/
+PUT:
+127.0.0.1:8000/api/companies/{company_id}/representatives/{rep_id}
+DELETE:
+127.0.0.1:8000/api/companies/{company_id}/representatives/{rep_id}
+
+languages:
+GET:
+127.0.0.1:8000/api/languages
+127.0.0.1:8000/api/languages/{language_id}
+POST:
+127.0.0.1:8000/api/languages/
+PUT:
+127.0.0.1:8000/api/languages/{language_id}
+DELETE:
+127.0.0.1:8000/api/languages/{language_id}
+
+notifications:
+GET:
+127.0.0.1:8000/api/notifications
+PATCH:
+127.0.0.1:8000/api/notifications/{notification_id}/read
+
+skills:
+GET:
+127.0.0.1:8000/api/skills
+127.0.0.1:8000/api/skills/{skill_id}
+POST:
+127.0.0.1:8000/api/skills/
+PUT:
+127.0.0.1:8000/api/skills/{skill_id}
+DELETE:
+127.0.0.1:8000/api/skills/{skill_id}
+
+stages:
+GET:
+127.0.0.1:8000/api/stages
+127.0.0.1:8000/api/stages/{stage_id}
+
+vacancies:
+GET:
+127.0.0.1:8000/api/vacancies
+127.0.0.1:8000/api/vacancies/{vacancy_id}
+POST:
+127.0.0.1:8000/api/vacancies/
+PUT:
+127.0.0.1:8000/api/vacancies/{vacancy_id}
+DELETE:
+127.0.0.1:8000/api/vacancies/{vacancy_id}
+
+vacancy_languages:
+GET:
+127.0.0.1:8000/api/vacancies/{vacancy_id}/languages
+POST:
+127.0.0.1:8000/api/vacancies/{vacancy_id}/languages/
+DELETE:
+127.0.0.1:8000/api/vacancies/{vacancy_id}/languages/{assoc_language_id}
+
+vacancy_skills:
+GET:
+127.0.0.1:8000/api/vacancies/{vacancy_id}/skills
+POST:
+127.0.0.1:8000/api/vacancies/{vacancy_id}/skills/
+DELETE:
+127.0.0.1:8000/api/vacancies/{vacancy_id}/skills/{assoc_skill_id}
+
+
+# Промпт 24.04.2025
+
+
+You are a senior React/TypeScript frontend engineer. Your mission is to generate a complete React project (React 18+, TypeScript, Tailwind CSS + shadcn/ui) fully integrated with our existing FastAPI backend. Use Axios for all HTTP requests. Ensure all API interactions exactly match provided endpoints. Every feature must be implemented completely—no partial implementations.
+
+1. Layout & Scrolling
+
+Fixed Header: top navbar and filters bar pinned at viewport top.
+
+Horizontal Centering: All main content (Kanban boards, tables, profile panels) centered horizontally.
+
+Independent Scroll Containers:
+
+Companies Page:
+
+Left "Company List" vertical scroll.
+
+Center "Company Info" vertical scroll.
+
+Right "Company Vacancies" vertical scroll.
+
+Vacancies & Applications Pages:
+
+Left "Company List" filter vertical scroll.
+
+Kanban columns vertically scrollable.
+
+Kanban board horizontally scrollable if overflow occurs.
+
+2. Authentication
+
+Login Page: username/password form, JWT auth, Axios integration.
+
+Redirect unauthenticated users, protected routes.
+
+Endpoints:
+
+POST: /api/auth/login
+
+GET: /api/auth/me
+
+POST: /api/auth/logout
+
+JWT storage via localStorage, Axios interceptors for automatic token handling.
+
+3. Global "Add" Button & Modal
+
+Floating "+" button at bottom right.
+
+Opens modal for creating Company, Vacancy, Candidate, Skill, Language.
+
+Axios POST requests on creation, immediate UI update via React Query.
+
+4. Candidate Base & Linking
+
+Infinite Scroll using React Query (limit and offset parameters).
+
+Clicking candidate opens drawer with full details.
+
+Button to link candidate to active vacancies.
+
+Endpoints:
+
+GET, POST, PUT, DELETE: /api/candidates
+
+Linking via POST on /api/applications/
+
+5. Kanban Card Details, Chat & Reminders
+
+Kanban cards clickable, opening right-side drawer with details.
+
+Comments/chat with author and timestamp.
+
+"Remind me" date/time picker creating notifications.
+
+Drag-and-Drop for Kanban state changes with immediate backend synchronization via PUT/PATCH requests.
+
+Endpoints:
+
+GET, POST, PUT, DELETE: /api/applications
+
+GET, PATCH (mark as read): /api/notifications
+
+6. React Query & API Endpoints
+
+Use provided FastAPI endpoints precisely:
+
+Applications: /api/applications
+
+Candidates: /api/candidates
+
+Companies: /api/companies
+
+Representatives: /api/companies/{company_id}/representatives
+
+Languages & Skills: /api/languages, /api/skills
+
+Candidate Languages & Skills: /api/candidates/{candidate_id}/languages, /skills
+
+Vacancies: /api/vacancies
+
+Vacancy Languages & Skills: /api/vacancies/{vacancy_id}/languages, /skills
+
+Stages: /api/stages
+
+Notifications: /api/notifications
+
+7. TypeScript API Typing
+
+Clearly define TypeScript interfaces for all API responses and request bodies in a dedicated apiTypes.ts file.
+
+8. Pagination & Infinite Scroll
+
+Implement infinite scrolling with reasonable page size (limit) to prevent server overload. Pagination fully controlled via React Query.
+
+9. UI/UX Details
+
+Clear states for interactive elements (hover, active, disabled).
+
+Responsive design optimized for mobile, tablet, and desktop.
+
+Loading indicators and clear error handling with user-friendly toast notifications.
+
+Consistent RecruitFlow theming (colors, typography, spacing).
+
+Smooth animations using Framer Motion.
+
+10. Tech & Developer Experience
+
+React 18+, TypeScript, Tailwind CSS, shadcn/ui
+
+Axios for HTTP requests
+
+React Router v6, React Query
+
+Drag-and-drop (dnd-kit or react-beautiful-dnd)
+
+Framer Motion animations
+
+Jest + React Testing Library for critical paths (Login, Add-modal, Kanban)
+
+ESLint, Prettier, README.md setup instructions
+
+Ensure a robust, fully integrated, and production-ready frontend, precisely aligned with provided backend endpoints and UI design.
