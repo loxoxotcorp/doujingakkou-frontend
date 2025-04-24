@@ -1,81 +1,173 @@
-
-import { useState } from 'react';
-import { DndContext, closestCenter, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { KanbanColumn } from './KanbanColumn';
-import { KanbanCard } from './KanbanCard';
-import { KanbanItem } from './types';
-import { createPortal } from 'react-dom';
+import React, { useEffect, useState } from "react";
+import {
+  DndContext,
+  DragOverlay,
+  KeyboardSensor,
+  PointerSensor,
+  closestCorners,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { KanbanColumn } from "./KanbanColumn";
+import { KanbanCard } from "./KanbanCard";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import apiService from "@/services/api";
+import { Application } from "@/types/apiTypes";
+import { useToast } from "@/hooks/use-toast";
+import { ApplicationDetails } from "./ApplicationDetails";
 
 interface KanbanBoardProps {
-  columns: { id: string; title: string }[];
-  items: KanbanItem[];
-  onItemDragEnd: (item: KanbanItem, destination: string) => void;
-  onItemClick: (item: KanbanItem) => void;
+  vacancyId?: string;
+  candidateId?: string;
+  companyId?: string;
 }
 
-export const KanbanBoard = ({ columns, items, onItemDragEnd, onItemClick }: KanbanBoardProps) => {
-  const [activeItem, setActiveItem] = useState<KanbanItem | null>(null);
+export const KanbanBoard: React.FC<KanbanBoardProps> = ({
+  vacancyId,
+  candidateId,
+  companyId,
+}) => {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
 
-  const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event;
-    const activeItem = items.find(item => item.id === active.id);
-    if (activeItem) {
-      setActiveItem(activeItem);
+  const { data: stages } = useQuery({
+    queryKey: ["stages"],
+    queryFn: apiService.getStages,
+  });
+
+  const { data: applications, isLoading } = useQuery({
+    queryKey: ["applications", { vacancyId, candidateId, companyId }],
+    queryFn: () =>
+      apiService.getApplications({
+        vacancy_id: vacancyId,
+        candidate_id: candidateId,
+        company_id: companyId,
+      }),
+  });
+
+  const [applicationsByStage, setApplicationsByStage] = useState<Record<string, Application[]>>({});
+
+  useEffect(() => {
+    if (applications?.items && stages) {
+      const grouped: Record<string, Application[]> = {};
+      stages.forEach((stage) => {
+        grouped[stage.id] = [];
+      });
+      applications.items.forEach((app) => {
+        if (app.stage_id && grouped[app.stage_id]) {
+          grouped[app.stage_id].push(app);
+        }
+      });
+      setApplicationsByStage(grouped);
     }
+  }, [applications?.items, stages]);
+
+  const activeApplication = activeId
+    ? applications?.items.find((app) => app.id === activeId)
+    : null;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragStart = (event: any) => {
+    setActiveId(event.active.id);
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: any) => {
     const { active, over } = event;
-    
-    if (over && active.id !== over.id) {
-      const activeItem = items.find(item => item.id === active.id);
-      // Check if over.id is a column ID
-      const overColumnId = columns.find(col => col.id === over.id)?.id;
-      
-      if (activeItem && overColumnId) {
-        onItemDragEnd(activeItem, overColumnId);
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
+
+    if (active.data.current?.stage_id !== over.data.current?.stage_id) {
+      const applicationId = active.id;
+      const newStageId = over.data.current?.stage_id;
+
+      try {
+        const oldStageId = active.data.current?.stage_id;
+        const movedApp = applicationsByStage[oldStageId]?.find((app) => app.id === applicationId);
+
+        if (movedApp && oldStageId && newStageId) {
+          const updatedState = { ...applicationsByStage };
+          updatedState[oldStageId] = updatedState[oldStageId].filter((app) => app.id !== applicationId);
+          updatedState[newStageId] = [...updatedState[newStageId], { ...movedApp, stage_id: newStageId }];
+          setApplicationsByStage(updatedState);
+
+          await apiService.updateApplicationStage(applicationId, newStageId);
+          queryClient.invalidateQueries({ queryKey: ["applications", { vacancyId, candidateId, companyId }] });
+
+          toast({
+            title: "Заявка перемещена",
+            description: "Статус заявки обновлен",
+          });
+        }
+      } catch (error) {
+        toast({
+          title: "Ошибка",
+          description: "Не удалось обновить статус заявки",
+          variant: "destructive",
+        });
+        queryClient.invalidateQueries({ queryKey: ["applications", { vacancyId, candidateId, companyId }] });
       }
     }
-    
-    setActiveItem(null);
+
+    setActiveId(null);
   };
 
-  // Group items by column
-  const itemsByColumn = columns.reduce((acc, column) => {
-    acc[column.id] = items.filter(item => item.stage === column.id);
-    return acc;
-  }, {} as Record<string, KanbanItem[]>);
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+
+  if (isLoading || !stages) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-recruitflow-brown"></div>
+      </div>
+    );
+  }
 
   return (
-    <DndContext
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="flex space-x-4 overflow-x-auto p-4 h-full">
-        {columns.map(column => (
-          <SortableContext
-            key={column.id}
-            items={itemsByColumn[column.id]?.map(item => item.id) || []}
-            strategy={verticalListSortingStrategy}
-          >
+    <div className="flex flex-col h-full">
+      <div className="flex overflow-x-auto p-4 gap-4 h-full">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
+        >
+          {stages.map((stage) => (
             <KanbanColumn
-              id={column.id}
-              title={column.title}
-              items={itemsByColumn[column.id] || []}
-              onItemClick={onItemClick}
+              key={stage.id}
+              id={stage.id}
+              title={stage.name}
+              applications={applicationsByStage[stage.id] || []}
+              onCardClick={(id) => setSelectedApplicationId(id)}
             />
-          </SortableContext>
-        ))}
+          ))}
+
+          <DragOverlay>
+            {activeId && activeApplication && (
+              <KanbanCard application={activeApplication} onClick={() => {}} className="shadow-lg" />
+            )}
+          </DragOverlay>
+        </DndContext>
       </div>
-      
-      {createPortal(
-        <DragOverlay>
-          {activeItem ? <KanbanCard item={activeItem} /> : null}
-        </DragOverlay>,
-        document.body
-      )}
-    </DndContext>
+
+      <ApplicationDetails
+        applicationId={selectedApplicationId}
+        open={!!selectedApplicationId}
+        onClose={() => setSelectedApplicationId(null)}
+      />
+    </div>
   );
 };

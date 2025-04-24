@@ -1,47 +1,69 @@
-
-import { useDroppable } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { KanbanItem } from './types';
-import { SortableKanbanCard } from './SortableKanbanCard';
-import { cn } from '@/lib/utils';
+import { Application } from "@/types/apiTypes";
+import { KanbanCard } from "./KanbanCard";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useDroppable } from "@dnd-kit/core";
+import { useRef, useEffect } from "react";
 
 interface KanbanColumnProps {
   id: string;
   title: string;
-  items: KanbanItem[];
-  onItemClick: (item: KanbanItem) => void;
+  applications: Application[];
+  onCardClick: (applicationId: string) => void;
 }
 
-export const KanbanColumn = ({ id, title, items, onItemClick }: KanbanColumnProps) => {
-  const { setNodeRef, isOver } = useDroppable({
-    id,
+export const KanbanColumn: React.FC<KanbanColumnProps> = ({
+  id,
+  title,
+  applications,
+  onCardClick,
+}) => {
+  const { setNodeRef } = useDroppable({
+    id: `column-${id}`,
+    data: {
+      stage_id: id,
+      type: "column",
+    },
   });
+
+  const columnRef = useRef<HTMLDivElement>(null);
+
+  // Прокрутка вниз при добавлении новой карточки
+  useEffect(() => {
+    if (columnRef.current) {
+      const { scrollHeight, clientHeight } = columnRef.current;
+      if (scrollHeight > clientHeight) {
+        columnRef.current.scrollTop = scrollHeight - clientHeight;
+      }
+    }
+  }, [applications.length]);
 
   return (
     <div
       ref={setNodeRef}
-      className={cn(
-        "flex flex-col h-full min-w-[300px] max-w-[300px] rounded-md p-2",
-        "bg-recruitflow-beigeLight border border-recruitflow-beigeDark",
-        isOver && "bg-recruitflow-beige border-dashed"
-      )}
+      className="kanban-column"
+      style={{ height: "calc(100vh - 200px)" }}
     >
-      <h3 className="font-bold p-2 text-center bg-white rounded-md mb-2 border border-recruitflow-beigeDark">
-        {title}
+      <h3 className="font-medium mb-4 text-center text-recruitflow-brown-dark">
+        {title}{" "}
+        <span className="text-sm text-gray-500">({applications.length})</span>
       </h3>
-      
-      <div className="flex-grow overflow-y-auto overflow-x-hidden scrollable-container pb-4">
-        <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-          {items.map((item) => (
-            <SortableKanbanCard key={item.id} item={item} onClick={() => onItemClick(item)} />
+
+      <div
+        ref={columnRef}
+        className="overflow-y-auto h-[calc(100%-40px)] pb-4"
+      >
+        <SortableContext
+          items={applications.map((app) => app.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          {applications.map((application) => (
+            <KanbanCard
+              key={application.id}
+              application={application}
+              onClick={() => onCardClick(application.id)}
+            />
           ))}
         </SortableContext>
-        
-        {items.length === 0 && (
-          <div className="text-center p-4 text-gray-500 italic">
-            Перетащите карточку сюда
-          </div>
-        )}
       </div>
     </div>
   );

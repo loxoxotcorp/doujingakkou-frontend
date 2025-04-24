@@ -1,137 +1,73 @@
+# Welcome to your Lovable project
 
-# RecruitFlow CRM
+## Project info
 
-A recruitment Customer Relationship Management (CRM) system built with React, TypeScript, and modern web technologies.
+**URL**: https://lovable.dev/projects/9cef58b1-a60f-402d-add4-243aef9092b2
 
-## Features
+## How can I edit this code?
 
-- **Companies Management**
-  - Three-column layout (list - info - vacancies)
-  - Inline editing of company fields
-  - Multiple contact methods per company
+There are several ways of editing your application.
 
-- **Vacancies & Candidates**
-  - Kanban-style board with drag-and-drop
-  - Columns for different stages of recruitment
-  - Card details drawer
-  
-- **Candidate Database**
-  - Infinite scroll table
-  - Filtering and search
-  - Link candidates to vacancies
-  
-- **Global Features**
-  - Floating "Add" button for quick creation
-  - Real-time notifications
-  - Audit trail
-  - Authentication system
+**Use Lovable**
 
-## Tech Stack
+Simply visit the [Lovable Project](https://lovable.dev/projects/9cef58b1-a60f-402d-add4-243aef9092b2) and start prompting.
 
-- **Frontend Framework**: React 18+ with TypeScript
-- **Styling**: Tailwind CSS + shadcn/ui components
-- **State Management**: React Query (TanStack Query)
-- **Animations**: Framer Motion
-- **Drag and Drop**: @dnd-kit
-- **Routing**: React Router v6
-- **Forms**: React Hook Form
+Changes made via Lovable will be committed automatically to this repo.
 
-## Project Structure
+**Use your preferred IDE**
 
-```
-src/
-├── api/          # API mock endpoints and types
-├── components/   # UI components
-│   ├── ui/       # shadcn/ui components
-│   ├── layout/   # Layout components
-│   ├── common/   # Shared components
-│   ├── companies/# Company-related components
-│   ├── kanban/   # Kanban board components
-│   └── candidates/# Candidate-related components
-├── hooks/        # Custom React hooks
-├── pages/        # Page components
-└── utils/        # Utility functions
+If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+
+The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+Follow these steps:
+
+```sh
+# Step 1: Clone the repository using the project's Git URL.
+git clone <YOUR_GIT_URL>
+
+# Step 2: Navigate to the project directory.
+cd <YOUR_PROJECT_NAME>
+
+# Step 3: Install the necessary dependencies.
+npm i
+
+# Step 4: Start the development server with auto-reloading and an instant preview.
+npm run dev
 ```
 
-## Getting Started
+**Edit a file directly in GitHub**
 
-### Prerequisites
+- Navigate to the desired file(s).
+- Click the "Edit" button (pencil icon) at the top right of the file view.
+- Make your changes and commit the changes.
 
-- Node.js 16+ and npm
+**Use GitHub Codespaces**
 
-### Installation
+- Navigate to the main page of your repository.
+- Click on the "Code" button (green button) near the top right.
+- Select the "Codespaces" tab.
+- Click on "New codespace" to launch a new Codespace environment.
+- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
+## What technologies are used for this project?
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+This project is built with:
 
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+- Vite
+- TypeScript
+- React
+- shadcn-ui
+- Tailwind CSS
 
-4. Open [http://localhost:8080](http://localhost:8080) in your browser.
+## How can I deploy this project?
 
-## Mock API
+Simply open [Lovable](https://lovable.dev/projects/9cef58b1-a60f-402d-add4-243aef9092b2) and click on Share -> Publish.
 
-The project uses a mock API for demonstration purposes. The mock data is stored in memory and reset when the application reloads. The API endpoints are located in the `src/api` directory.
+## Can I connect a custom domain to my Lovable project?
 
-### Replacing with Real API
+Yes, you can!
 
-To replace the mock API with a real backend:
+To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
-1. Keep the same API structure and function signatures
-2. Replace the function implementations with actual API calls
-3. Update the return types to match the expected data structure
-
-Example:
-
-```typescript
-// Mock API (current)
-export const getCompanies = async (): Promise<ApiResponse<PaginatedResponse<Company>>> => {
-  // Mock implementation
-  return {
-    success: true,
-    data: {
-      data: mockCompanies,
-      total: mockCompanies.length,
-      page: 1,
-      limit: 10,
-    }
-  };
-};
-
-// Real API (replace with)
-export const getCompanies = async (): Promise<ApiResponse<PaginatedResponse<Company>>> => {
-  // Real implementation
-  const response = await fetch('https://api.example.com/companies');
-  const data = await response.json();
-  
-  return {
-    success: true,
-    data: {
-      data: data.companies,
-      total: data.total,
-      page: data.page,
-      limit: data.limit,
-    }
-  };
-};
-```
-
-## Authentication
-
-The application includes a demo authentication system. Use the following credentials:
-
-- Email: john@recruitflow.com
-- Password: password
-
-## License
-
-This project is proprietary and confidential.
+Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)

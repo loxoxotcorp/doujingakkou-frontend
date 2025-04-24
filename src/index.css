@@ -5,35 +5,65 @@
 
 @layer base {
   :root {
-    --background: 36 33% 90%;
-    --foreground: 30 25% 20%;
-    
-    --card: 36 30% 92%;
-    --card-foreground: 30 25% 20%;
-    
-    --popover: 36 30% 92%;
-    --popover-foreground: 30 25% 20%;
-    
-    --primary: 30 25% 20%;
-    --primary-foreground: 36 30% 92%;
-    
-    --secondary: 36 20% 70%;
-    --secondary-foreground: 30 25% 20%;
-    
-    --muted: 36 20% 85%;
-    --muted-foreground: 30 15% 40%;
-    
-    --accent: 36 20% 85%;
-    --accent-foreground: 30 25% 20%;
-    
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 36 30% 92%;
-    
-    --border: 30 20% 75%;
-    --input: 30 20% 90%;
-    --ring: 35 40% 60%;
-    
+    --background: 35 40% 95%;
+    --foreground: 30 25% 14%;
+
+    --card: 35 40% 95%;
+    --card-foreground: 30 25% 14%;
+
+    --popover: 35 40% 95%;
+    --popover-foreground: 30 25% 14%;
+
+    --primary: 32 47% 72%;
+    --primary-foreground: 30 25% 14%;
+
+    --secondary: 25 47% 20%;
+    --secondary-foreground: 35 40% 95%;
+
+    --muted: 35 20% 85%;
+    --muted-foreground: 30 10% 30%;
+
+    --accent: 35 20% 85%;
+    --accent-foreground: 30 25% 14%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 35 40% 95%;
+
+    --border: 35 30% 80%;
+    --input: 35 30% 80%;
+    --ring: 30 25% 14%;
+
     --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 30 25% 14%;
+    --foreground: 35 40% 95%;
+
+    --card: 30 25% 14%;
+    --card-foreground: 35 40% 95%;
+
+    --popover: 30 25% 14%;
+    --popover-foreground: 35 40% 95%;
+
+    --primary: 32 47% 72%;
+    --primary-foreground: 30 25% 14%;
+
+    --secondary: 35 40% 95%;
+    --secondary-foreground: 30 25% 14%;
+
+    --muted: 30 20% 20%;
+    --muted-foreground: 35 30% 80%;
+
+    --accent: 30 20% 20%;
+    --accent-foreground: 35 40% 95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 35 40% 95%;
+
+    --border: 30 20% 20%;
+    --input: 30 20% 20%;
+    --ring: 35 40% 95%;
   }
 }
 
@@ -41,44 +71,39 @@
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply bg-recruitflow-beige text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-@layer components {
-  .scrollable-container {
-    @apply overflow-y-auto overflow-x-hidden;
-    scrollbar-width: thin;
-    scrollbar-color: theme('colors.recruitflow.brownLight') theme('colors.recruitflow.beigeDark');
+@layer utilities {
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
   
-  .scrollable-container::-webkit-scrollbar {
-    width: 8px;
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
-  
-  .scrollable-container::-webkit-scrollbar-track {
-    @apply bg-recruitflow-beigeDark rounded-full;
-  }
-  
-  .scrollable-container::-webkit-scrollbar-thumb {
-    @apply bg-recruitflow-brownLight rounded-full;
-  }
-  
-  .skill-tag {
-    @apply inline-block px-2 py-0.5 text-xs font-medium rounded-md bg-recruitflow-beigeDark text-recruitflow-brownDark m-0.5;
-  }
-  
-  .language-tag {
-    @apply inline-block px-2 py-0.5 text-xs font-medium rounded-md bg-recruitflow-beigeLight text-recruitflow-brownDark m-0.5 border border-recruitflow-beigeDark;
-  }
-  
-  .card-container {
-    @apply bg-recruitflow-beigeLight rounded-md p-3 border border-recruitflow-beigeDark shadow-sm;
-  }
-  
-  .input-field {
-    @apply rounded-md border border-recruitflow-beigeDark bg-white px-3 py-2 text-sm shadow-sm;
-  }
+}
+
+.kanban-column {
+  @apply flex-1 min-w-[300px] max-w-[350px] bg-recruitflow-beige-light rounded-md p-4 shadow-sm;
+}
+
+.kanban-card {
+  @apply bg-white rounded-md p-4 mb-3 shadow-sm hover:shadow transition-shadow cursor-pointer;
+}
+
+.skill-tag {
+  @apply bg-recruitflow-tag text-recruitflow-brown text-xs px-2 py-1 rounded-md mr-1 mb-1 inline-block;
+}
+
+.scrollable-container {
+  @apply overflow-y-auto;
+  max-height: calc(100vh - 160px);
 }
