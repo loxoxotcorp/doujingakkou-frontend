@@ -3,6 +3,7 @@ import { VacancyKanbanCard } from "./VacancyKanbanCard";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
 import { useRef, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 interface VacancyKanbanColumnProps {
   id: string;
@@ -17,15 +18,14 @@ export const VacancyKanbanColumn: React.FC<VacancyKanbanColumnProps> = ({
   vacancies,
   onCardClick,
 }) => {
-  const { setNodeRef } = useDroppable({
-    id: id,
+  const { setNodeRef, isOver } = useDroppable({
+    id,
     data: {
       stage_id: id,
       type: "column",
     },
   });
-
-  const columnRef = useRef<HTMLDivElement>(null);
+const columnRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (columnRef.current) {
@@ -43,8 +43,13 @@ export const VacancyKanbanColumn: React.FC<VacancyKanbanColumnProps> = ({
       style={{ height: "calc(100vh - 200px)" }}
     >
       <h3 className="font-medium mb-4 text-center text-recruitflow-brown-dark">
-        {title} <span className="text-sm text-gray-500">({vacancies.length})</span>
+        {title} id:{id} <span className="text-sm text-gray-500">({vacancies.length})</span>
       </h3>
+      {isOver && (
+        <div className="absolute inset-0 bg-recruitflow-brown/10 flex justify-center items-center text-xl font-bold text-recruitflow-brown">
+          {id}
+        </div>
+      )}
 
       <div
         ref={columnRef}
