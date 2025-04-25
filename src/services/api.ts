@@ -136,8 +136,8 @@ class ApiService {
   }
 
   // Vacancies
-  async getVacancies(): Promise<Vacancy[]> {
-    const res = await this.api.get<Vacancy[]>('/vacancies');
+  async getVacancies(params?: Record<string, any>): Promise<Vacancy[]> {
+    const res = await this.api.get<Vacancy[]>('/vacancies', { params });
     return res.data;
   }
 
@@ -281,8 +281,8 @@ class ApiService {
   }
 
   // Stages
-  async getStages(): Promise<Stage[]> {
-    const res = await this.api.get('/stages');
+  async getStages(params?: Record<string, any>): Promise<Stage[]> {
+    const res = await this.api.get('/stages', { params });
     return res.data;
   }
 

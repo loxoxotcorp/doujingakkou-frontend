@@ -3,7 +3,7 @@ import { MainLayout } from "@/components/layout/MainLayout";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, X } from "lucide-react";
-import { KanbanBoard } from "@/components/kanban/KanbanBoard";
+import { VacancyKanbanBoard } from "@/components/kanban/VacancyKanbanBoard";
 import { useQuery } from "@tanstack/react-query";
 import apiService from "@/services/api";
 import { Switch } from "@/components/ui/switch";
@@ -93,7 +93,7 @@ const Vacancies = () => {
 
               {/* Kanban board */}
               <div className="flex-1 overflow-hidden">
-                <KanbanBoard companyId={companyId} showOnlyActive={showOnlyActive} />
+                <VacancyKanbanBoard companyId={companyId} showOnlyActive={showOnlyActive} />
               </div>
             </div>
           </div>

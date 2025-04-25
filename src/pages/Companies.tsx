@@ -34,7 +34,7 @@ const Companies = () => {
 
   // Fetch company vacancies
   const { data: companyVacancies } = useQuery({
-    queryKey: ["company-vacancies", selectedCompanyId],
+    queryKey: ["company_id", selectedCompanyId],
     queryFn: () => (selectedCompanyId ? apiService.getVacancies({ company_id: selectedCompanyId }) : []),
     enabled: !!selectedCompanyId,
   });
